@@ -2,8 +2,10 @@ package ee.kool.panga_api.accounts;
 
 import ee.kool.panga_api.security.AuthService;
 import ee.kool.panga_api.users.User;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @RestController
+@Tag(name = "Accounts", description = "Pangakontode loomine ja vaatamine")
 public class AccountController {
 
     private static final String BANK_PREFIX = "KEN";
@@ -28,6 +31,7 @@ public class AccountController {
     @PostMapping("/users/{userId}/accounts")
     @ResponseStatus(HttpStatus.CREATED)
     @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Loob kasutajale uue pangakonto")
     public AccountCreationResponse createAccount(
             @PathVariable String userId,
             @Parameter(hidden = true)
@@ -60,6 +64,7 @@ public class AccountController {
     }
 
     @GetMapping("/accounts/{accountNumber}")
+    @Operation(summary = "Tagastab konto info konto numbri järgi")
     public AccountLookupResponse getAccount(@PathVariable String accountNumber) {
         Account account = accountRepository.findById(accountNumber)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
