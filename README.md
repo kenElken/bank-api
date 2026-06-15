@@ -1,12 +1,40 @@
-# Bank API / Panga harukontori API
+# Panga harukontori API
 
-Panga harukontori API. Rakendus võimaldab registreerida kasutajaid, luua pangakontosid, teha pangasiseseid ja pankadevahelisi ülekandeid ning suhelda Keskpanga API-ga.
+Panga harukontori API on Java Spring Bootiga loodud rakendus, mis võimaldab registreerida kasutajaid, luua pangakontosid, teha pangasiseseid ja pankadevahelisi ülekandeid ning suhelda Keskpanga API-ga.
 
-API on loodud Java Spring Bootiga ja kasutab PostgreSQL andmebaasi. Endpoint’e saab testida Swagger UI kaudu.
+Rakendus kasutab PostgreSQL andmebaasi. API endpointe saab testida Swagger UI kaudu.
+
+## Live deployment
+
+Live API:
+
+```text
+https://bank-api-012r.onrender.com
+```
+
+Swagger UI:
+
+```text
+https://bank-api-012r.onrender.com/swagger-ui/index.html
+```
+
+Health check:
+
+```text
+https://bank-api-012r.onrender.com/health
+```
+
+Märkus: tavaline avaleht `/` ei ole eraldi kasutajaliides. API testimiseks kasutada `/health` endpoint’i või Swagger UI-d.
+
+## GitHub
+
+```text
+https://github.com/kenElken/bank-api
+```
 
 ## Kasutatud tehnoloogiad
 
-* Java 17
+* Java 17+
 * Spring Boot
 * Spring Web
 * Spring Data JPA
@@ -17,10 +45,13 @@ API on loodud Java Spring Bootiga ja kasutab PostgreSQL andmebaasi. Endpoint’e
 * Springdoc OpenAPI / Swagger UI
 * Nimbus JOSE JWT
 * Maven
+* Docker
+* Render
+* Neon PostgreSQL
 
 ## Projekti struktuur
 
-Rakendus on jaotatud loogilisteks mooduliteks:
+Rakendus on jaotatud mooduliteks:
 
 ```text
 src/main/java/ee/kool/panga_api
@@ -32,18 +63,20 @@ src/main/java/ee/kool/panga_api
 └── users
 ```
 
-* `users` – kasutajate registreerimine ja API võtmed
-* `accounts` – kontode loomine ja konto info
+Moodulite kirjeldus:
+
+* `users` – kasutajate registreerimine ja API võtmete loomine
+* `accounts` – kontode loomine ja konto info pärimine
 * `transfers` – pangasisesed ja pankadevahelised ülekanded
 * `centralbank` – Keskpanga API-ga suhtlemine
-* `security` – Bearer token autentimine
+* `security` – Bearer token põhine autentimine
 * `common` – üldine veakäsitlus
 
 ## Andmebaas
 
-Projektis kasutasin PostgreSQL andmebaasi.
+Projekt kasutab PostgreSQL andmebaasi.
 
-Vaikimisi seadistus:
+Lokaalse arenduse vaikimisi seadistus:
 
 ```text
 Database: bankapi
@@ -62,7 +95,7 @@ transfers
 
 Hibernate loob tabelid automaatselt rakenduse käivitamisel.
 
-## Käivitamine
+## Käivitamine lokaalselt
 
 ### 1. PostgreSQL andmebaasi loomine
 
@@ -81,50 +114,40 @@ GRANT ALL ON SCHEMA public TO bankuser;
 ALTER SCHEMA public OWNER TO bankuser;
 ```
 
-### 2. application.properties
 
-Failis `src/main/resources/application.properties`:
-
-```properties
-spring.application.name=panga-api
-
-spring.datasource.url=jdbc:postgresql://localhost:5432/bankapi
-spring.datasource.username=bankuser
-spring.datasource.password=bankpass
-spring.datasource.driver-class-name=org.postgresql.Driver
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-
-springdoc.swagger-ui.path=/swagger-ui.html
-```
-
-### 3. Rakenduse käivitamine
+### 2. Rakenduse käivitamine
 
 ```powershell
 .\mvnw spring-boot:run
 ```
 
-API töötab aadressil:
+Lokaalne API aadress:
 
 ```text
 http://localhost:8080
 ```
 
-Swagger UI:
+Lokaalne Swagger UI:
 
 ```text
 http://localhost:8080/swagger-ui/index.html
 ```
 
-## Peamised endpoint’id
+## Deployment
+
+Rakendus on deploytud Renderisse Dockeri abil. Andmebaasina kasutatakse Neon PostgreSQL teenust.
+
+Turvalisuse tõttu ei ole andmebaasi paroole ega päris connection stringe GitHubi lisatud.
+
+## Peamised endpointid
 
 ### Health
 
 ```http
 GET /health
 ```
+
+Kontrollib, kas rakendus töötab.
 
 ### Kasutajad
 
@@ -141,7 +164,18 @@ Näide:
 }
 ```
 
-Vastus sisaldab `userId` ja `apiKey`.
+Vastus sisaldab kasutaja ID-d ja API võtit.
+
+Näide:
+
+```json
+{
+  "userId": "1",
+  "fullName": "Ken Test",
+  "email": "ken@test.ee",
+  "apiKey": "generated-api-key"
+}
+```
 
 ### Kontod
 
@@ -151,11 +185,25 @@ POST /users/{userId}/accounts
 
 Vajab Bearer tokenit.
 
+Näide:
+
 ```json
 {
   "currency": "EUR"
 }
 ```
+
+Konto number luuakse panga prefixiga `KEN`.
+
+Näited:
+
+```text
+KEN00001
+KEN00002
+KEN00003
+```
+
+Konto info pärimine:
 
 ```http
 GET /accounts/{accountNumber}
@@ -166,6 +214,8 @@ GET /accounts/{accountNumber}
 ```http
 POST /transfers
 ```
+
+Vajab Bearer tokenit.
 
 Näide:
 
@@ -178,15 +228,19 @@ Näide:
 }
 ```
 
+Ülekande info pärimine:
+
 ```http
 GET /transfers/{transferId}
 ```
+
+JWT-põhise pankadevahelise ülekande vastuvõtmine:
 
 ```http
 POST /transfers/receive
 ```
 
-Võtab vastu JWT-põhise pankadevahelise ülekande.
+Näide:
 
 ```json
 {
@@ -204,6 +258,22 @@ POST /central-bank/heartbeat
 GET /central-bank/public-key
 ```
 
+Keskpanga registreerimisel saab kasutada live aadressi:
+
+```text
+https://bank-api-012r.onrender.com
+```
+
+Näiteks:
+
+```text
+bankId: KEN001
+name: Ken Bank
+address: https://bank-api-012r.onrender.com
+```
+
+Kui `KEN001` on juba kasutusel, saab kasutada järgmist vaba ID-d, näiteks `KEN002`.
+
 ## Autentimine
 
 Kasutaja registreerimisel luuakse `apiKey`.
@@ -214,7 +284,7 @@ Kaitstud endpointide kasutamiseks tuleb saata header:
 Authorization: Bearer <apiKey>
 ```
 
-Swagger UI-s saab selle sisestada **Authorize** nupu alt.
+Swagger UI-s saab API võtme sisestada **Authorize** nupu alt.
 
 Kaitstud tegevused:
 
@@ -276,14 +346,53 @@ Näide:
 
 Soovituslik testimise järjekord:
 
-1. `POST /users`
-2. Kopeeri vastusest `userId` ja `apiKey`
-3. Vajuta Swaggeris **Authorize** ja sisesta `apiKey`
-4. `POST /users/{userId}/accounts`
-5. Loo teine konto sama kasutaja alla
-6. `POST /transfers`
-7. Kontrolli saldosid `GET /accounts/{accountNumber}`
-8. Kontrolli ülekannet `GET /transfers/{transferId}`
+1. Ava Swagger UI:
+
+   ```text
+   https://bank-api-012r.onrender.com/swagger-ui/index.html
+   ```
+
+2. Kontrolli rakenduse olekut:
+
+   ```http
+   GET /health
+   ```
+
+3. Loo kasutaja:
+
+   ```http
+   POST /users
+   ```
+
+4. Kopeeri vastusest `userId` ja `apiKey`.
+
+5. Vajuta Swaggeris **Authorize** ja sisesta `apiKey`.
+
+6. Loo konto:
+
+   ```http
+   POST /users/{userId}/accounts
+   ```
+
+7. Loo teine konto sama või teise kasutaja alla.
+
+8. Tee pangasisene ülekanne:
+
+   ```http
+   POST /transfers
+   ```
+
+9. Kontrolli kontode saldosid:
+
+   ```http
+   GET /accounts/{accountNumber}
+   ```
+
+10. Kontrolli ülekannet:
+
+```http
+GET /transfers/{transferId}
+```
 
 ## Arendustestimise endpoint
 
@@ -291,37 +400,11 @@ Soovituslik testimise järjekord:
 POST /test/interbank-jwt
 ```
 
-Seda kasutatakse lokaalselt JWT-põhise laekumise testimiseks.
-
-## Live URL
-
-Lokaalne versioon:
-
-```text
-http://localhost:8080
-```
-
-Live URL:
-
-```text
-TODO: lisa pärast deploy’d
-```
-
-Swagger UI live URL:
-
-```text
-TODO: lisa pärast deploy’d
-```
+Seda kasutatakse JWT-põhise laekumise testimiseks arenduse ajal.
 
 ## Teadaolevad piirangud
 
-* `localhost` aadressiga ei saa panka Keskpangas lõplikult registreerida, sest Keskpank nõuab avalikult ligipääsetavat hosti.
 * Pankadevaheline ülekanne võib jääda `PENDING` staatusesse, kui sihtpanga API ei vasta.
 * `/test/interbank-jwt` on ainult arendustestimiseks.
 * Konto loomisel antakse testimise lihtsustamiseks algsaldoks `1000.00`.
-
-## GitHub
-
-```text
-https://github.com/kenElken/bank-api
-```
+* Tavalist avalehte `/` ei ole eraldi loodud, sest rakendus on API, mitte veebileht.
