@@ -2,7 +2,8 @@
 
 ## Valitud AI reeglite fail
 
-Valisin projekti AI reeglite failiks `AGENTS.md`, sest see on mõeldud arendusagentidele projektipõhiste juhiste andmiseks. Fail asub projekti juurkaustas, et AI tööriist leiaks selle kohe projekti avamisel.
+Valisin projekti AI reeglite failiks `AGENTS.md`, sest see on mõeldud arendusagentidele projektipõhiste juhiste andmiseks.
+Fail asub projekti juurkaustas, et AI tööriist leiaks selle kohe projekti avamisel.
 
 `AGENTS.md` sobib selle projekti jaoks hästi, sest sinna saab kirja panna projekti struktuuri, arenduskäsud, testimise reeglid, turvanõuded, Git töövoo ja piirangud, mida AI peab koodi muutmisel järgima.
 
@@ -14,45 +15,50 @@ Kasutasin järgmisi allikaid:
 2. agents.md – AGENTS.md formaadi kirjeldus.
 3. GitHub Docs – GitHub Copiloti custom instructions ja toetatud juhisefailid.
 4. GitHub Docs – Branch protection ja required status checks.
-5. GitHub Docs – Pull request’id ja protected branches.
+5. GitHub Docs – Pull requestid ja protected branches.
 
 Nendest allikatest sain infot selle kohta, kuidas AI arendusassistendile projektipõhiseid juhiseid anda ning kuidas kaitsta `main` haru katkise või kontrollimata koodi eest.
 
 ## Projekti suurimad riskid AI-ga arendamisel
 
-Selle projekti puhul on kõige suuremad riskid seotud töötava funktsionaalsuse rikkumisega. Rakendus tegeleb kasutajate, kontode, ülekannete, autentimise ja andmebaasiga. Kui AI muudab mõnda nendest osadest liiga hooletult, võib rakendus küll kompileeruda, aga äriloogika võib valesti tööle hakata.
+Kõige suuremad riskid seotud töötava funktsionaalsuse rikkumisega.
+Rakendus tegeleb kasutajate, kontode, ülekannete, autentimise ja andmebaasiga.
+Kui AI muudab mõnda nendest osadest liiga hooletult, võib rakendus küll kompileeruda, aga äriloogika võib valesti tööle hakata.
 
 Peamised riskid on:
 
-* AI muudab olemasolevaid API endpoint’e ja Swaggeri kaudu testitavad päringud ei tööta enam.
+* AI muudab olemasolevaid API endpointe ja Swaggeri kaudu testitavad päringud ei tööta enam.
 * AI muudab konto loomise või kontonumbri genereerimise loogikat.
 * AI rikub ülekannete äriloogikat, näiteks saldo kontrolli.
 * AI eemaldab või nõrgendab API võtmega autentimist.
 * AI muudab entity klasse nii, et andmebaasiga tekib probleem.
-* AI lisab uusi dependency’sid ilma vajaduseta.
+* AI lisab uusi dependencyid ilma vajaduseta.
 * AI teeb liiga suure muudatuse korraga ja seda on raske kontrollida.
 
 ## Kuidas reeglid aitavad katkist koodi vältida
 
-`AGENTS.md` failis olevad reeglid sunnivad AI-d enne muudatuste tegemist projekti olemasolevat struktuuri arvestama. AI ei tohi muuta avalikke API route’e, andmebaasi välju, autentimist ega olulist äriloogikat ilma selge vajaduseta.
+`AGENTS.md` failis olevad reeglid sunnivad AI-d enne muudatuste tegemist projekti olemasolevat struktuuri arvestama.
+AI ei tohi muuta avalikke API route, andmebaasi välju, autentimist ega olulist äriloogikat ilma selge vajaduseta.
 
 Failis on kirjas, et AI peab hoidma muudatused väiksed ja keskenduma ainult ülesandega seotud failidele. See vähendab riski, et AI parandab ühte asja, aga rikub samal ajal kõrvalise osa.
 
-Samuti on reeglites kirjas, et enne töö lõpetamist tuleb käivitada testid ja vajadusel ka build. Kui testid või build ebaõnnestuvad, ei tohi tööd valmis märkida.
+Samuti on reeglites kirjas, et enne töö lõpetamist tuleb käivitada testid ja vajadusel ka build.
+Kui testid või build ebaõnnestuvad, ei tohi tööd valmis märkida.
 
 ## Kuidas vältida katkise koodi jõudmist main harusse
 
-Ainult `AGENTS.md` fail ei kaitse `main` haru tehniliselt. See fail annab AI-le juhised, kuid tegelik kaitse peab tulema GitHubi töövoost.
+Ainult `AGENTS.md` fail ei kaitse `main` haru tehniliselt.
+See fail annab AI-le juhised, kuid tegelik kaitse peab tulema GitHubi töövoost.
 
 Selleks peaks projektis kasutama järgmisi võtteid:
 
-* iga muudatus tehakse eraldi feature branch’is;
-* `main` harusse ei push’ita otse;
-* muudatus viiakse `main` harusse pull request’i kaudu;
+* iga muudatus tehakse eraldi feature branchis;
+* `main` harusse ei pushita otse;
+* muudatus viiakse `main` harusse pull requesti kaudu;
 * pull request peab olema väike ja arusaadav;
-* enne merge’imist peavad testid ja build õnnestuma;
-* võimalusel kasutatakse GitHub Actions CI workflow’d;
-* `main` harule võiks seadistada branch protection’i.
+* enne mergemist peavad testid ja build õnnestuma;
+* võimalusel kasutatakse GitHub Actions CI workflowd;
+* `main` harule võiks seadistada branch protectioni.
 
 Selline töövoog aitab vältida olukorda, kus AI või arendaja saadab katkise koodi otse põhilisse harusse.
 
@@ -94,15 +100,15 @@ Mõned reeglid ei tööta ainult tekstifaili abil. Need vajavad tehnilist tuge.
 
 Tehnilist tuge vajavad näiteks:
 
-* `main` harusse otse push’imise keelamine;
-* pull request’i nõudmine enne merge’imist;
+* `main` harusse otse pushimise keelamine;
+* pull requesti nõudmine enne mergemist;
 * testide automaatne käivitamine;
-* build’i automaatne kontroll;
+* buildi automaatne kontroll;
 * branch protection;
 * required status checks;
 * code review.
 
-Selle jaoks saab GitHubis seadistada branch protection’i ja GitHub Actions CI workflow. CI saab iga push’i või pull request’i korral käivitada `mvn test` või `mvn clean package`.
+Selle jaoks saab GitHubis seadistada branch protectioni ja GitHub Actions CI workflow. CI saab iga pushi või pull requesti korral käivitada `mvn test` või `mvn clean package`.
 
 ## Tõendus kvaliteedikontrollist
 
@@ -110,11 +116,19 @@ Kvaliteedikontrolli tõendamiseks käivitasin projekti juurkaustas järgmise kä
 
 mvn package
 
-See kontrollib, et projekt kompileerub ja rakendusest saab build’i teha.
+See kontrollib, et projekt kompileerub ja rakendusest saab buildi teha.
 
 Alguses proovisin käsku mvn clean package, kuid Windowsis jäi target/classes kaust lukku ja Maven ei saanud seda kustutada. Seetõttu kasutasin kvaliteedikontrolli tõendusena käsku mvn package, mis lõppes edukalt.
 
 ![Maven package õnnestus](screenshots/mvn-package-success.png)
+
+## Lisasin pull request template
+
+Lisasin projekti faili .github/pull_request_template.md.
+
+Selle faili eesmärk on aidata arendajal või AI arendusassistendil enne muudatuse esitamist kontrollida, et muudatus on tehtud eraldi branchis, build on käivitatud, tundlikku infot ei ole lisatud ja olemasolevat funktsionaalsust ei ole ilma põhjuseta muudetud.
+
+PR template ei kaitse main haru tehniliselt sama tugevalt nagu branch protection või CI, aga see lisab arendusprotsessi kontrollnimekirja ja aitab vähendada hooletuid muudatusi.
 
 ## Enesehinnang
 
@@ -124,6 +138,6 @@ Oluline on ka reegel, et enne töö lõpetamist tuleb käivitada testid või bui
 
 Alles jääb risk, et AI teeb koodi, mis tehniliselt töötab, aga ei vasta täpselt äriloogikale. Näiteks pangaülekannete puhul peab inimene ikkagi kontrollima, kas lahendus on sisuliselt õige.
 
-Järgmises versioonis parandaksin seda nii, et lisaksin rohkem automaatteste kontode, kasutajate, autentimise ja ülekannete kohta. Samuti lisaksin GitHub Actions workflow, mis käivitab testid automaatselt iga pull request’i korral.
+Järgmises versioonis parandaksin seda nii, et lisaksin rohkem automaatteste kontode, kasutajate, autentimise ja ülekannete kohta. Samuti lisaksin GitHub Actions workflow, mis käivitab testid automaatselt iga pull requesti korral.
 
 Kokkuvõttes aitab `AGENTS.md` fail muuta AI kasutamist turvalisemaks, sest AI saab enne koodi muutmist teada projekti reeglid, piirangud ja kvaliteedinõuded.
