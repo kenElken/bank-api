@@ -114,7 +114,7 @@ See kontrollib, et projekt kompileerub ja rakendusest saab build’i teha.
 
 Alguses proovisin käsku mvn clean package, kuid Windowsis jäi target/classes kaust lukku ja Maven ei saanud seda kustutada. Seetõttu kasutasin kvaliteedikontrolli tõendusena käsku mvn package, mis lõppes edukalt.
 
-`screenshots/mvn-packace-success.png`
+![Maven package õnnestus](screenshots/mvn-package-success.png)
 
 ## Enesehinnang
 
