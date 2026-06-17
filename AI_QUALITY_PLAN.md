@@ -130,6 +130,12 @@ Selle faili eesmärk on aidata arendajal või AI arendusassistendil enne muudatu
 
 PR template ei kaitse main haru tehniliselt sama tugevalt nagu branch protection või CI, aga see lisab arendusprotsessi kontrollnimekirja ja aitab vähendada hooletuid muudatusi.
 
+Kontrollisin GitHubis uue test-branchi põhjal, et pull requesti loomisel kuvatakse template automaatselt.
+See kinnitab, et PR template on repos õigesse kohta lisatud ja töötab.
+
+![PR template test](screenshots/pr-template-test.png)
+![PR template test](screenshots/pr-template-test2.png)
+
 ## Enesehinnang
 
 Kõige kasulikum reegel on minu arvates see, et AI ei tohi muuta korraga liiga palju faile ega teha kõrvalisi refaktoreerimisi. See aitab hoida muudatused kontrollitavad ja vähendab riski, et töötav funktsionaalsus läheb katki.
